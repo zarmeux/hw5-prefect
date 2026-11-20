@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+evidence/*/
+evidence/latest.txt
+*.pyc
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.zip
+.prefect/

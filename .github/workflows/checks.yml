@@ -1,0 +1,33 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Prefect
+        run: python -m pip install -r requirements.txt
+      - name: Check Python and Prefect API compatibility
+        run: |
+          python -m compileall -q flows jobs scripts tests
+          python -c 'import runpy; runpy.run_path("flows/events_flow.py", run_name="check_import")'
+      - name: Check Bash syntax
+        run: |
+          for script in scripts/*.sh; do
+            bash -n "$script" || exit
+          done
+      - name: Test validation and report generation
+        run: python -m unittest discover -s tests -v
